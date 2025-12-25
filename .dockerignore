@@ -1,0 +1,34 @@
+# Không copy thư mục Git và cấu hình Docker
+.git/
+.gitignore
+docker-compose.yml
+Dockerfile
+README.md
+
+# Không copy môi trường ảo (Docker tự cài mới)
+venv/
+env/
+
+# Không copy file rác Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+
+# Không copy file bí mật (Docker sẽ đọc từ --env-file)
+.env
+.env.*
+
+# Không copy dữ liệu và tài liệu thừa
+*.sql
+*.docx
+*.txt
+*.md
+data/
+scripts/
+logs/
+
+# Các file cấu hình Editor
+.vscode/
+.idea/

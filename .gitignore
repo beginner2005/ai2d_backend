@@ -1,0 +1,34 @@
+# Python & Môi trường ảo (Rác hệ thống)
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+venv/
+env/
+.pytest_cache/
+
+# Biến môi trường & Bí mật (QUAN TRỌNG NHẤT)
+.env
+.env.*
+! .env.example
+
+# Cấu hình Editor (Của riêng máy bạn)
+.vscode/
+.idea/
+*.swp
+
+# Dữ liệu & Backup (Nặng, không nên up lên Git)
+*.sql
+*.sqlite3
+data/
+logs/
+*.log
+
+# Tài liệu & File tạm
+*.docx
+*.pdf
+notion.txt
+Tai_lieu_ky_thuat.docx
+*.egg-info/
+dist/
+build/
