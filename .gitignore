@@ -32,6 +32,3 @@ Tai_lieu_ky_thuat.docx
 *.egg-info/
 dist/
 build/
-docker-compose.override.yml
-Dockerfile
-.dockerignore
