@@ -23,7 +23,7 @@ __pycache__/
 # Không copy dữ liệu và tài liệu thừa
 *.sql
 *.docx
-*.txt
+notion.txt
 *.md
 data/
 scripts/

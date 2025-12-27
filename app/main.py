@@ -1,4 +1,3 @@
-# File chạy chính của Server
 from fastapi import FastAPI
 from contextlib import asynccontextmanager
 from app.core.config import settings
@@ -28,17 +27,19 @@ def read_root():
 # API KIỂM TRA SỨC KHỎE HỆ THỐNG
 @app.get("/health")
 def health_check():
-    status = {"status": "ok", "mongo": "dead", "postgres": "dead"}
+    # Mặc định khai báo cả 3 là dead
+    status = {"status": "ok", "mongo": "dead", "postgres": "dead", "neo4j": "dead"}
     
-    # Test Mongo: Đếm số lượng diagrams
+    # 1. Test Mongo: Đếm số lượng diagrams
     try:
         if db.mongo_db is not None:
+            # Lệnh count_documents({}) đếm tất cả docs
             count = db.mongo_db["diagrams"].count_documents({})
             status["mongo"] = f"alive ({count} docs)"
     except Exception as e:
-        status["mongo"] = str(e)
+        status["mongo"] = f"Error: {str(e)}"
 
-    # Test Postgres: Đếm số lượng diagrams
+    # 2. Test Postgres: Đếm số lượng dòng trong bảng diagrams
     try:
         if db.pg_conn is not None:
             # Check nếu connection bị đóng thì connect lại
@@ -51,10 +52,23 @@ def health_check():
             status["postgres"] = f"alive ({pg_count} rows)"
             cursor.close()
     except Exception as e:
-        status["postgres"] = str(e)
+        status["postgres"] = f"Error: {str(e)}"
+
+    # 3. Test Neo4j: Đếm số lượng Node (Nút)
+    try:
+        if db.neo4j_driver is not None:
+            # Kiểm tra kết nối bằng cách đếm tổng số node
+            # MATCH (n) RETURN count(n) là lệnh nhẹ nhất để test
+            with db.neo4j_driver.session() as session:
+                result = session.run("MATCH (n) RETURN count(n) AS count")
+                # Lấy kết quả đầu tiên
+                neo4j_count = result.single()["count"]
+                status["neo4j"] = f"alive ({neo4j_count} nodes)"
+    except Exception as e:
+        status["neo4j"] = f"Error: {str(e)}"
 
     return status
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=True)
+    uvicorn.run("app.main:app", host="127.0.0.1", port=8000, reload=True)

@@ -13,7 +13,7 @@ router = APIRouter()
 def health():
     return {"status": "ok"}
 
-# API 1: TÌM KIẾM (Search)
+# API 1: Search
 @router.get("/search", response_model=List[SearchResultItem])
 async def search_diagrams(
     q: str = Query(..., min_length=2, description="Từ khóa tìm kiếm (VD: frog, cycle)")
@@ -35,7 +35,6 @@ async def search_diagrams(
     """
     search_term = f"%{q}%"
     cursor.execute(sql, (search_term, search_term, search_term))
-    # ---------------------------
     
     results = cursor.fetchall()
     cursor.close()
@@ -51,7 +50,7 @@ async def search_diagrams(
         ))
     return data
 
-# API 2: LẤY CHI TIẾT (Detail)
+# API 2: Detail
 @router.get("/diagrams/{diagram_id}")
 async def get_diagram_detail(diagram_id: str):
     """
@@ -97,23 +96,26 @@ async def enrich_knowledge(diagram_id: str):
             "entities": mongo_doc.get("entities", [])
         }
 
-    # 3. CHẠY THUẬT TOÁN LÀM GIÀU (Service Layer)
+   # 3. CHẠY THUẬT TOÁN LÀM GIÀU
     keywords, related_list = enrichment_service.get_related_diagrams(diagram_id)
+    
+    # Xác định loại template
+    template_type = "structure_view" if basic_info['group_type'] == 'Structure' else "process_view"
+    
+    # Gọi hàm xử lý dữ liệu theo template
+    formatted_data = enrichment_service.process_template_data(template_type, mongo_doc)
+    # ----------------
 
-    # 4. Ghép tất cả vào khuôn mẫu JSON (Template)
+    # 4. Ghép vào Response
     response = KnowledgeResponse(
         diagram_id=diagram_id,
-        title=f"Biểu đồ về {basic_info['category']}", # Tạm thời tự sinh tiêu đề
+        title=f"Biểu đồ về {basic_info['category']}",
         group_type=basic_info['group_type'] or "Unknown",
-        template_type="structure_view" if basic_info['group_type'] == 'Structure' else "process_view",
+        template_type=template_type,
         
-        # Dữ liệu chính để vẽ
-        data={
-            "summary": f"Biểu đồ này chứa các khái niệm: {', '.join(keywords[:5])}...",
-            "details": mongo_data
-        },
+        # trả về dữ liệu đã format
+        data=formatted_data, 
         
-        # Dữ liệu liên kết (Knowledge Graph)
         related_knowledge=related_list
     )
     

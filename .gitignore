@@ -12,12 +12,12 @@ env/
 .env.*
 ! .env.example
 
-# Cấu hình Editor (Của riêng máy bạn)
+# Cấu hình Editor
 .vscode/
 .idea/
 *.swp
 
-# Dữ liệu & Backup (Nặng, không nên up lên Git)
+# Dữ liệu & Backup
 *.sql
 *.sqlite3
 data/
@@ -32,3 +32,6 @@ Tai_lieu_ky_thuat.docx
 *.egg-info/
 dist/
 build/
+docker-compose.override.yml
+Dockerfile
+.dockerignore
